@@ -110,7 +110,7 @@ def metropolis_hastings_2call_coordwise(N, fun):
 			y[idx_y+1] = y[idx_y]
 
 	return x, y
-
+"""
 # FROM https://mr-easy.github.io/2020-05-21-implementing-gibbs-sampling-in-python/
 def conditional_sampler(sampling_index, current_x, mean, cov):
     conditioned_index = 1 - sampling_index 
@@ -143,7 +143,7 @@ def gibbs_sampler(initial_point, num_samples, mean, cov):
         samples[i+1] = point
 
     return samples, tmp_points
-
+"""
 if __name__ == "__main__":
 
 	# Exercise 1
