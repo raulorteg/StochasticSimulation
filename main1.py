@@ -5,6 +5,7 @@ integer representation
 """
 
 import numpy as np
+import random
 import matplotlib.pyplot as plt
 from math import sqrt
 
@@ -87,7 +88,7 @@ if __name__ == "__main__":
 	"""
 	m_array = [14,16,18,20,22,24]
 	a_array = [3,4,5,6,7,8,9]
-	c_array = [1,2,3,4,5,6,7,8,9,10]
+	c_array = [0,1,2,3,4,5,6,7,8,9,10]
 
 	chi_array = []
 	kolm_array = []
@@ -96,7 +97,7 @@ if __name__ == "__main__":
 	best_kol = np.inf
 	best_comb_kol = None
 
-	N = 1000
+	N = 10000
 	for m in m_array:
 		for a in a_array:
 			for c in c_array:
@@ -124,3 +125,89 @@ if __name__ == "__main__":
 
 	print(f"Best Kolmogorob-Smirnov: {best_comb_kol} with {best_kol}")
 	print(f"Best chi: {best_comb_chi} with {best_chi}")
+
+	# plot best comb_kol
+	m,a,c = best_comb_kol
+	x = congruential_generator(m=m, a=a, c=c, x0=x0,N=N)
+	n_observed, _ = np.histogram(x, bins=num_classes)
+
+	# scatter plot
+	plt.plot(x[1:,], x[:-1,], "+")
+	plt.show()
+
+	# histogram
+	plt.hist(x, bins=num_classes)
+	plt.show()
+
+	# kolmogorov test graph
+	plt.plot(sorted(x)/max(x))
+	plt.plot(np.linspace(0,1,len(x)))
+	plt.show()
+
+	# Chi square test
+	n_expected = (N/num_classes)*np.ones(num_classes)
+	T = chi_square_test(n_observed, n_expected, num_classes)
+	print(f"Chi-square test: {T}")
+
+	# Kolmogorov test
+	kolg_test = kolmogorov_smirnov_test(x)
+	print(f"Kolmogorov-Smirnov test: {kolg_test}")
+	print("-"*20)
+
+	# plot best comb_chi
+	m,a,c = best_comb_chi
+	x = congruential_generator(m=m, a=a, c=c, x0=x0,N=N)
+	n_observed, _ = np.histogram(x, bins=num_classes)
+
+	# scatter plot
+	plt.plot(x[1:,], x[:-1,], "+")
+	plt.show()
+
+	# histogram
+	plt.hist(x, bins=num_classes)
+	plt.show()
+
+	# kolmogorov test graph
+	plt.plot(sorted(x)/max(x))
+	plt.plot(np.linspace(0,1,len(x)))
+	plt.show()
+
+	# Chi square test
+	n_expected = (N/num_classes)*np.ones(num_classes)
+	T = chi_square_test(n_observed, n_expected, num_classes)
+	print(f"Chi-square test: {T}")
+
+	# Kolmogorov test
+	kolg_test = kolmogorov_smirnov_test(x)
+	print(f"Kolmogorov-Smirnov test: {kolg_test}")
+
+	print("-"*20)
+	"""
+	Generate 10k numbers randomly using a built in function and test it
+	"""
+	N = 10000
+	x = np.array([random.randint(0,num_classes-1) for _ in range(N)])
+	n_observed, _ = np.histogram(x, bins=num_classes)
+
+	# scatter plot
+	plt.plot(x[1:,], x[:-1,], "+")
+	plt.show()
+
+	# histogram
+	plt.hist(x, bins=num_classes)
+	plt.show()
+
+	# kolmogorov test graph
+	plt.plot(sorted(x)/max(x))
+	plt.plot(np.linspace(0,1,len(x)))
+	plt.show()
+
+	# Chi square test
+	n_expected = (N/num_classes)*np.ones(num_classes)
+	T = chi_square_test(n_observed, n_expected, num_classes)
+	print(f"Chi-square test: {T}")
+
+	# Kolmogorov test
+	kolg_test = kolmogorov_smirnov_test(x)
+	print(f"Kolmogorov-Smirnov test: {kolg_test}")
+	print("-"*20)
