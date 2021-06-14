@@ -1,12 +1,15 @@
 # 02443 Stochastic Simulation DTU
 
 ## About
-Example of Simulated Annealing algorithm on a random map with 20 cities.
+Example of Simulated Annealing algorithm on circle and random map with 20 cities.
 
-<img src="plots/png_to_gif.gif" width="400" />
+<p float="center">
+  <img src="plots/circle.gif" alt="circle map gif" height="300" />
+  <img src="plots/random.gif" alt="random map gif" height="300"/>
+</p>
 
 ## Requirements
-
+```pip install requirements.txt -r```
 
 ## TODOs
 ```
