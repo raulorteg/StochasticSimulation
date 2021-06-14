@@ -1,5 +1,13 @@
 # 02443 Stochastic Simulation DTU
 
+## About
+Example of Simulated Annealing algorithm on a random map with 20 cities.
+
+<img src="plots/png_to_gif.gif" width="400" />
+
+## Requirements
+
+
 ## TODOs
 ```
 Exercise1: Raul
