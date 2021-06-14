@@ -110,40 +110,7 @@ def metropolis_hastings_2call_coordwise(N, fun):
 			y[idx_y+1] = y[idx_y]
 
 	return x, y
-"""
-# FROM https://mr-easy.github.io/2020-05-21-implementing-gibbs-sampling-in-python/
-def conditional_sampler(sampling_index, current_x, mean, cov):
-    conditioned_index = 1 - sampling_index 
-    # The above line works because we only have 2 variables, x_0 & x_1
-    a = cov[sampling_index, sampling_index]
-    b = cov[sampling_index, conditioned_index]
-    c = cov[conditioned_index, conditioned_index]
-  
-    mu = mean[sampling_index] + 
-         (b * (current_x[conditioned_index] - mean[conditioned_index]))/c
-    sigma = np.sqrt(a-(b**2)/c)
-    new_x = np.copy(current_x)
-    new_x[sampling_index] = np.random.randn()*sigma + mu
-    return new_x
 
-# FROM https://mr-easy.github.io/2020-05-21-implementing-gibbs-sampling-in-python/
-def gibbs_sampler(initial_point, num_samples, mean, cov):
-
-    point = np.array(initial_point)
-    samples = np.empty([num_samples+1, 2])  #sampled points
-    samples[0] = point
-    tmp_points = np.empty([num_samples, 2]) #inbetween points
-
-    for i in range(num_samples):
-        # Sample from p(x_0|x_1)
-        point = conditional_sampler(0, point, mean, cov)
-        tmp_points[i] = point
-        # Sample from p(x_1|x_0)
-        point = conditional_sampler(1, point, mean, cov)
-        samples[i+1] = point
-
-    return samples, tmp_points
-"""
 if __name__ == "__main__":
 
 	# Exercise 1
@@ -181,7 +148,3 @@ if __name__ == "__main__":
 	x, y = metropolis_hastings_2call_coordwise(N=N, fun=truncated_poisson_dist_2call)
 	plt.hist2d(x,y)
 	plt.show()
-
-	# Exercise 2c
-
-

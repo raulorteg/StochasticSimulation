@@ -12,7 +12,7 @@ import math, random
 import matplotlib.pyplot as plt
 
 from PIL import Image
-import glob
+import glob, os
 
 class Simulated_Annealing:
     def __init__(self, cost_matrix=[], temp_type="sqrt", T=1, max_iter=100, T_threshold=0.001, init_method="greedy", alpha=0.99, coordinates=False):
@@ -140,7 +140,7 @@ class Simulated_Annealing:
             cost_list.append(self.path_cost)
 
             if map: # to save plots for animation
-                map.save_progress(path=self.path, iter_=iter_)
+                map.save_progress(path=path, iter_=iter_)
 
             iter_ += 1
             self.update_T(iter_)
@@ -209,6 +209,53 @@ class Circle_Map:
 
         plt.title("Route of the Salesman on Circle Map")
         plt.show()
+
+    def save_progress(self, iter_, path=None):
+        """
+        Given a path plot the route of the salesman and the cities.
+        """
+        coord_path_x, coord_path_y = [], []
+        for city in self.cities:
+            plt.plot(*city, "xr") # plot the cities
+
+        if path:
+            past_city = self.cities[path[0]]
+            plt.plot(*past_city, "og") # plot the starting point
+            for i in range(1,self.num_cities):
+                city_idx = path[i]
+                coord_path_x.append([past_city[0], self.cities[city_idx][0]])
+                coord_path_y.append([past_city[1], self.cities[city_idx][1]])
+                past_city = self.cities[city_idx]
+
+            for idx in range(len(coord_path_x)):
+                plt.plot(coord_path_x[idx], coord_path_y[idx], "b")
+
+            plt.title(f"Route of the Salesman on Circle Map, iter={iter_}")
+            if iter_ < 10:
+                plt.savefig("plots/circle"+ f"0{iter_}.png", format="png")
+                plt.close()
+            else:
+                plt.savefig("plots/circle"+ f"{iter_}.png", format="png")
+                plt.close()
+
+    def animate(self):
+        # Create the frames
+        frames = []
+        imgs = glob.glob("plots/circle"+"*.png")
+        imgs = sorted(imgs)
+        for i in imgs:
+            new_frame = Image.open(i)
+            frames.append(new_frame)
+ 
+        # Save into a GIF file that loops forever
+        frames[0].save("plots"+'/circle.gif', format='GIF',
+               append_images=frames[1:],
+               save_all=True,
+               duration=30, loop=0)
+
+        # remove the images
+        for img in imgs:
+            os.remove(img)
 
     def get_cities(self): # if want to work with the coordinates of cities
         return self.cities
@@ -296,26 +343,30 @@ class Random_Map:
 
             plt.title(f"Route of the Salesman on Random Map, iter={iter_}")
             if iter_ < 10:
-                plt.savefig("plots/"+ f"0{iter_}.png", format="png")
+                plt.savefig("plots/random"+ f"0{iter_}.png", format="png")
                 plt.close()
             else:
-                plt.savefig("plots/"+ f"{iter_}.png", format="png")
+                plt.savefig("plots/random"+ f"{iter_}.png", format="png")
                 plt.close()
 
     def animate(self):
         # Create the frames
         frames = []
-        imgs = glob.glob("plots/"+"*.png")
+        imgs = glob.glob("plots/random"+"*.png")
         imgs = sorted(imgs)
         for i in imgs:
             new_frame = Image.open(i)
             frames.append(new_frame)
  
         # Save into a GIF file that loops forever
-        frames[0].save("plots"+'/png_to_gif.gif', format='GIF',
+        frames[0].save("plots"+'/random.gif', format='GIF',
                append_images=frames[1:],
                save_all=True,
                duration=30, loop=0)
+
+        # remove the images
+        for img in imgs:
+            os.remove(img)
 
     def get_cities(self): # if want to work with the coordinates of cities
         return self.cities
@@ -339,19 +390,19 @@ if __name__ == "__main__":
     plt.ylabel("Cost of path (distance)")
     plt.xlabel("Iterations")
     plt.show()
-
+    """
     # Lets test it in the Circle map
     circle_map = Circle_Map(num_cities=20)
     cost_matrix = circle_map.get_distances()
 
-    simulation = Simulated_Annealing(cost_matrix=cost_matrix, temp_type='sqrt', init_method='random', max_iter=1000)
-    path, path_cost, cost_list = simulation.run()
-    circle_map.plot(path)
-    """
+    simulation = Simulated_Annealing(cost_matrix=cost_matrix, temp_type='log', init_method='random', max_iter=500)
+    path, path_cost, cost_list = simulation.run(map=circle_map)
+    # circle_map.plot(path)
+    
     # Lets test it in the Random map
     random_map = Random_Map(num_cities=20)
     cost_matrix = random_map.get_distances()
 
-    simulation = Simulated_Annealing(cost_matrix=cost_matrix, temp_type='sqrt', init_method='random', max_iter=1000)
+    simulation = Simulated_Annealing(cost_matrix=cost_matrix, temp_type='log', init_method='random', max_iter=500)
     path, path_cost, cost_list = simulation.run(map=random_map)
-    random_map.plot(path)
+    # random_map.plot(path)
