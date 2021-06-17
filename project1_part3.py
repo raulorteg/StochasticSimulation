@@ -44,7 +44,8 @@ class Patient:
         for snaphistory in self.history:
             snap_state, snap_time = snaphistory
             if snap_time > time:
-                return prev_snap_state
+                # return prev_snap_state
+                return snap_state
             elif snap_time >= self.get_final_time():
                 return snap_state
             prev_snap_state = snap_state
@@ -186,13 +187,13 @@ def compute_q_matrix(S, N):
 
     return q
 
-def custom_norm(q_prev, q, mode="abs"):
-    if mode == "abs":
-        return sum(sum(np.absolute(q_prev - q)))
-    else:
-        return sum(sum(np.square(q_prev - q)))
+def custom_norm(q_prev, q):
+    return np.absolute(q_prev - q).max().max()
+
 
 def Q_estimator(q0, N=1000, threshold=10e-3):
+
+    diff_vector = []
 
     # simulate
     q_prev = q0
@@ -209,6 +210,8 @@ def Q_estimator(q0, N=1000, threshold=10e-3):
     while (custom_norm(q_prev, q) > threshold):
         ctr += 1
         print(f"Iteration: {ctr}, norm {custom_norm(q_prev, q)}")
+        diff_vector.append(custom_norm(q_prev, q))
+
         # simulate
         q_prev = copy.deepcopy(q)
         experiment = Experiment(q=q_prev, N=N)
@@ -219,10 +222,8 @@ def Q_estimator(q0, N=1000, threshold=10e-3):
         N_ = compute_jumps(time_series_patients)
         S = compute_time_spent(time_series_patients)
         q = compute_q_matrix(S, N_)
-        print(q_prev)
-        print(q)
-    print("hurray")
-    return q
+
+    return q, diff_vector
 
 
 
@@ -256,8 +257,13 @@ if __name__ == "__main__":
     """
     Part 13
     """
-    q_rand = np.random.uniform(size=(5,5))
-    estimated_q = Q_estimator(q0=q_rand, N=100000, threshold=1e-5)
+    estimated_q, diff_vector = Q_estimator(q0=q, N=100000, threshold=10e-5)
+
+    plt.plot(diff_vector)
+    plt.xlabel("Iteration")
+    plt.ylabel("|Q^(k) - Q^(k+1)|")
+    plt.show()
+    print("-"*20)
     print(estimated_q)
     print(q)
 
