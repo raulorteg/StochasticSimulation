@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 from scipy.linalg import expm
+from scipy.stats import chisquare
 
 class Patient:
 	def __init__(self, q, id_, x0=0):
@@ -141,6 +142,11 @@ if __name__ == "__main__":
 	plt.title("Distribution of elapsed time until deacesed")
 	plt.show()
 
+	times = np.array(times)
+	plt.plot(times/max(times))
+	plt.title("Lifetime simulated")
+	plt.show()
+
 	# theoretical distribution of lifetime
 	lifetime_t30_5 = theoretical_lifetime(q, p0=[1,0,0,0], time=30.5)
 	print(f"lifetime at t=30.5: {lifetime_t30_5}")
@@ -151,15 +157,19 @@ if __name__ == "__main__":
 	for time in times_list:
 		lifetimes_list.append(theoretical_lifetime(q, p0=[1,0,0,0], time=time))
 
-	plt.plot(times_list, lifetimes_list)
+	cumulative_deceased = []
+	for time in times_list:
+		cumulative_deceased.append(len(times[times>time]))
+	cumulative_deceased = np.array(cumulative_deceased)
+	cumulative_deceased = 1-cumulative_deceased/N
+
+	plt.plot(times_list, lifetimes_list, label="theor.")
+	plt.plot(times_list, cumulative_deceased, label="Simul.")
+	plt.legend()
 	plt.title("Lifetime F(t) vs t")
 	plt.xlabel("time t")
 	plt.ylabel("F(t)")
 	plt.show()
 
-
-
-
-
-
-
+	chisq, p = chisquare(lifetimes_list[1:], cumulative_deceased[1:])
+	print(f"Chi square test results: chisquare: {chisq}, p:{p}")
