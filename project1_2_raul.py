@@ -73,13 +73,13 @@ class Experiment:
 	def run(self):
 		self.generate_patients()
 		for patient in self.patients:
-			print(f"Welcome Patient: {patient.id_}!")
 			while patient.is_alive():
 				patient.iterate()
 
 			self.patients_histories.append(patient.get_history())
 			self.times.append(patient.get_final_time())
 			self.state_at_time.append(patient.get_time(time=self.target_time))
+		print("--- experiment finished ----")
 
 
 	def get_histories(self):
@@ -88,7 +88,7 @@ class Experiment:
 	def get_final_times(self):
 		times = sorted(self.times)
 		counts = np.bincount(times)
-		return times, counts
+		return np.array(times), counts
 
 	def get_dist_at_fixed_time(self):
 		times = sorted(self.state_at_time)
@@ -107,8 +107,12 @@ def theoretical_lifetime(q, p0, time):
 if __name__ == "__main__":
 	
 	"""
+	#################################################################
 	TASK 7:
 	"""
+	print("--- Task 7 ---")
+	print()
+
 	q = np.array([[-0.0085, 0.005, 0.0025, 0, 0.001],
 		[0, -0.014, 0.005, 0.004, 0.005],[0, 0, -0.008, 0.003, 0.005],
 		[0, 0, 0, -0.009, 0.009],[0, 0, 0, 0, 0]])
@@ -117,8 +121,6 @@ if __name__ == "__main__":
 	N = 1000
 	experiment = Experiment(q=q, N=N, target_time=30.5)
 	experiment.run()
-
-	print("--Experiment finished--")
 
 	histories = experiment.get_histories()
 	times, counts = experiment.get_final_times()
@@ -151,6 +153,13 @@ if __name__ == "__main__":
 	lifetime_t30_5 = theoretical_lifetime(q, p0=[1,0,0,0], time=30.5)
 	print(f"lifetime at t=30.5: {lifetime_t30_5}")
 
+	"""
+	###########################################################
+	task 8:
+	"""
+	print("-"*20)
+	print("--- Task 8 ---")
+	print()
 	# plot of lifetime for all time.
 	times_list = np.linspace(0, max(times), 200)
 	lifetimes_list = []
@@ -173,3 +182,78 @@ if __name__ == "__main__":
 
 	chisq, p = chisquare(lifetimes_list[1:], cumulative_deceased[1:])
 	print(f"Chi square test results: chisquare: {chisq}, p:{p}")
+
+	"""
+	#####################################################################
+	Task 9: Treatment
+	"""
+	print("-"*20)
+	print("--- Task 9 ---")
+	print()
+
+	q = np.array([[-0.0085, 0.005, 0.0025, 0, 0.001],
+		[0, -0.014, 0.005, 0.004, 0.005],[0, 0, -0.008, 0.003, 0.005],
+		[0, 0, 0, -0.009, 0.009],[0, 0, 0, 0, 0]])
+
+	q_treat = np.array([[-0.0085, 0.0025, 0.00125, 0, 0.001],
+		[0, -0.014, 0, 0.002, 0.005], [0, 0, -0.008, 0.003, 0.005], 
+		[0, 0, 0, -0.009, 0.009], [0, 0, 0, 0, 0]])
+
+	# run the experiments
+	N = 1000
+	experiment_vanilla = Experiment(q=q, N=N, target_time=30.5)
+	experiment_vanilla.run()
+
+	experiment_treatment = Experiment(q=q_treat, N=N, target_time=30.5)
+	experiment_treatment.run()
+
+	# gather the results from experiments
+	histories_vanilla = experiment_vanilla.get_histories()
+	times_vanilla, counts_vanilla = experiment_vanilla.get_final_times()
+	dist_target_time_vanilla, counts_target_time_vanilla = experiment_vanilla.get_dist_at_fixed_time()
+
+	histories_treat = experiment_treatment.get_histories()
+	times_treat, counts_treat = experiment_treatment.get_final_times()
+	dist_target_time_treat, counts_target_time_treat = experiment_treatment.get_dist_at_fixed_time()
+
+	# some comparison plots
+	plt.hist([dist_target_time_treat,dist_target_time_vanilla])
+	plt.xlabel("Stages")
+	plt.ylabel("Number of patients")
+	plt.title("Distribution of patients over stages of illness at t=30.5 months")
+	plt.legend(["treatment", "no treatment"])
+	plt.show()
+
+	# plot of lifetime for all time.
+	times_list = np.linspace(0, max(times_vanilla), 200)
+	lifetimes_list_vanilla, lifetimes_list_treat = [], []
+	for time in times_list:
+		lifetimes_list_vanilla.append(theoretical_lifetime(q, p0=[1,0,0,0], time=time))
+		lifetimes_list_treat.append(theoretical_lifetime(q_treat, p0=[1,0,0,0], time=time))
+
+	cumulative_deceased_vanilla, cumulative_deceased_treat = [], []
+
+	for time in times_list:
+		cumulative_deceased_vanilla.append(len(times_vanilla[times_vanilla>time]))
+		cumulative_deceased_treat.append(len(times_treat[times_treat>time]))
+
+	cumulative_deceased_vanilla = np.array(cumulative_deceased_vanilla)
+	cumulative_deceased_vanilla = 1-cumulative_deceased_vanilla/N
+	cumulative_deceased_treat = np.array(cumulative_deceased_treat)
+	cumulative_deceased_treat = 1-cumulative_deceased_treat/N
+
+	plt.plot(times_list, lifetimes_list_vanilla, label="th. no treat.")
+	plt.plot(times_list, cumulative_deceased_vanilla, label="Simul. no treat.")
+	plt.plot(times_list, lifetimes_list_treat, label="th. treat.")
+	plt.plot(times_list, cumulative_deceased_treat, label="Simul. treat.")
+	plt.legend()
+	plt.title("Lifetime F(t) vs t")
+	plt.xlabel("time t")
+	plt.ylabel("F(t)")
+	plt.show()
+
+	chisq, p = chisquare(lifetimes_list_vanilla[1:], cumulative_deceased_vanilla[1:])
+	print(f"Chi square test results (no treatment): chisquare: {chisq}, p:{p}")
+
+	chisq, p = chisquare(lifetimes_list_treat[1:], cumulative_deceased_treat[1:])
+	print(f"Chi square test results (treatment): chisquare: {chisq}, p:{p}")
