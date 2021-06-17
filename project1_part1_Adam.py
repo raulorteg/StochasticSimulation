@@ -6,6 +6,7 @@ Created on Tue Jun 15 12:03:24 2021
 """
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats as ss
 
 def rejection_method(p, N, class_num, c):
     #np.random.seed(10)
@@ -37,9 +38,12 @@ def state_change(P, states):
             states[i] =  states[i]+3
         elif P[states[i],states[i]+3]<roll[i]<P[states[i],states[i]+4]:
             states[i] =  states[i]+4
-            new_deaths+=1
-        #if in_state!=states[i]:
+            
+        if in_state!=states[i]:
             #print(in_state,"->",states[i])
+            if states[i]==4:
+                new_deaths+=1
+        
     return states, new_deaths
 #%%
 #task 1
@@ -66,18 +70,82 @@ while sum(states==4)!=women_num:
         times.append(j)
 print('ded:', sum(states==4))
 deds_pdf = np.diff(np.array(deds))
-plt.plot(deds)
 plt.figure()
-plt.hist(np.array(times))
+plt.plot(deds)
+plt.xlabel("Months")
+plt.ylabel("Cumulative number of deaths")
+print("last ded", times[-1])
+plt.figure()
+plt.hist(np.array(times), 10)
+plt.xlabel("Months")
+plt.ylabel("Number of deaths")
+#%%
 #%%
 #task 2
+women_num = 1000
+
+states = np.zeros(women_num, dtype=int)
+deds = []
+#for j in range(women_num):
+j=0
+old_states = 0
+times = []
+healthy = []
+for i in range(120):
+    states, new_deaths = state_change(P, states)
+    #deds[j] = sum(states==4)
+    deds.append(sum(states==4))
+    healthy.append(sum(states==0))
+    for deaths in range(new_deaths):
+        times.append(i)
+print('ded:', sum(states==4))
+print('healthy:', sum(states==0))
+deds_pdf = np.diff(np.array(deds))
+plt.figure()
+plt.plot(deds)
+plt.xlabel("Months")
+plt.ylabel("Cumulative number of deaths")
+print("last ded", times[-1])
+plt.figure()
+plt.hist(np.array(times), 10)
+plt.xlabel("Months")
+plt.ylabel("Number of deaths")
+
+plt.figure()
+hist_states = np.histogram(states, 5)
+plt.bar([0,1,2,3,4], hist_states[0])
+plt.xlabel("State")
+plt.ylabel("Number of women")
+
+#%%
+
 theta = np.array([1000, 0, 0, 0])
 Ps = P[:-1, :-1]
 ps = P[:-1, -1]
 dist = []
-for i in range(1,1000):
+dist_mean = []
+for i in range(2,120):
     dist.append(theta@(Ps**i)@ps)
-plt.plot(np.array(dist)*60)
+mean_prob = theta@(np.linalg.inv(np.identity(Ps.shape[0])-Ps))@np.ones(Ps.shape)
+plt.figure()
+plt.plot(np.arange(2,120),np.array(dist))
+#plt.plot(np.arange(2,120),np.array(dist_mean))
+plt.xlabel('Months')
+plt.ylabel('Rate of healthy women')
+plt.plot(np.array(healthy)/1000)
+plt.legend(['analytical', 'simulation'])
+#%%
+plt.figure()
+plt.bar([0,1,2,3,4], np.array([1,0,0,0,0])@np.linalg.matrix_power(P, 120), alpha=0.5)
+plt.bar([0,1,2,3,4], hist_states[0]/1000, alpha=0.5)
+plt.legend(['Analytical distribution of states', 'Simulated distribution of states'])
+plt.xlabel('State')
+plt.ylabel('Rate of women in each state')
+dist_test_states = ss.chisquare(hist_states[0]/1000, np.array([1,0,0,0,0])@np.linalg.matrix_power(P, 120))
+print(dist_test_states)
+#%%
+dist_test = ss.chisquare(np.array(healthy[2:])/1000, dist)
+print(dist_test)
 #%%
 #task 5
 deaths_sim = np.zeros(100)
