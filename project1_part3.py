@@ -257,7 +257,8 @@ if __name__ == "__main__":
     """
     Part 13
     """
-    estimated_q, diff_vector = Q_estimator(q0=q, N=100000, threshold=10e-5)
+    q_rand = np.random.uniform(size=(5,5))
+    estimated_q, diff_vector = Q_estimator(q0=q_rand, N=10000, threshold=10e-4)
 
     plt.plot(diff_vector)
     plt.xlabel("Iteration")
