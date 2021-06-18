@@ -3,3 +3,4 @@ math
 random
 scipy
 matplotlib
+lifelines : !pip install lifelines
