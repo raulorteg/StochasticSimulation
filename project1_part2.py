@@ -38,6 +38,7 @@ class Patient:
 		# update iteration, append to history
 		self.history.append((self.x, self.time))
 
+	
 	def get_time(self, time):
 		prev_snap_state = 0
 		for snaphistory in self.history:
