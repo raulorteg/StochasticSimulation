@@ -46,12 +46,13 @@ class Citizen:
         # citizen is vaccinated and 
         vaccinated = 0.05
         if np.random.uniform() < vaccinated*(total_infected/total_population)*(infected_rate/(recovered_rate+infected_rate)):
-            self.state = 3 # small chance of getting infected 
-            #self.internal_clock = np.random.beta(a=10, b=3)*18 + (0.3*self.age) # 10 days average time being sick
+            self.state = 1 # small chance of getting infected 
+            self.start_time = time
+            self.internal_clock = np.random.beta(a=10, b=3)*18 + (0.3*self.age) # 10 days average time being sick
             
         else: 
             self.state = 4 
-            self.start_time = time
+            #self.start_time = time
 
 
     def transition_infected(self, time):
@@ -59,14 +60,9 @@ class Citizen:
           first check if disease has ended, then if ended check if died or recovered
           """
         if (time - self.start_time) >= self.internal_clock:
-
-            # constant prob p=0.05 of dying
-            if np.random.uniform() < 0.01*(self.age*0.1):
-                self.state = 3 # citizen dies
-            else:
-                self.state = 2 # citizen recovers
-                self.internal_clock = np.random.normal(loc=60.0-0.2*self.age, scale=15.0)
-                self.start_time = time
+            self.state = 2 # citizen recovers
+            self.internal_clock = np.random.normal(loc=60.0-0.2*self.age, scale=15.0)
+            self.start_time = time
 
         else:
             # constant prob p=0.05 of dying
@@ -164,20 +160,21 @@ class Population:
             self.time += 1.0
 
 
-    def vacciantion_process(self, vaccinated_everyday=0.1):
+    def vacciantion_process(self, vaccinated_everyday=0.01):
         """
         Vaccinate 10% of group population everyday starting after the 200th day 
         """
         
-        vaccinated_everyday = 0.05
+        #vaccinated_everyday = 0.05
         if self.time > 200: #after 200 days people start vaccinate per age group 
             people_with_vaccine = []
             for citizen in self.citizens:
                 if (citizen.age > 50 and citizen.state==0):
                     people_with_vaccine.append(citizen)
-            print(vaccinated_everyday*len(people_with_vaccine))
-            candidates = np.random.choice(people_with_vaccine, size=np.round(int(vaccinated_everyday*len(people_with_vaccine))))
-            
+            if len(people_with_vaccine)<self.N*vaccinated_everyday:
+                candidates = people_with_vaccine
+            else:
+                candidates = np.random.choice(people_with_vaccine, size=np.round(int(vaccinated_everyday*self.N)), replace=False)           
             for candidate in candidates:
                 candidate.state = 4
                     
@@ -187,8 +184,10 @@ class Population:
             for citizen in self.citizens:
                 if (citizen.age > 20 and citizen.age <= 30 and citizen.state == 0):
                     people_with_vaccine.append(citizen)
-                
-            candidates = np.random.choice(people_with_vaccine, size=np.round(int(vaccinated_everyday*len(people_with_vaccine))))
+            if len(people_with_vaccine)<self.N*vaccinated_everyday:
+                candidates = people_with_vaccine
+            else:
+                candidates = np.random.choice(people_with_vaccine, size=np.round(int(vaccinated_everyday*self.N)), replace=False)
 
             for candidate in candidates:
                 candidate.state = 4
@@ -199,7 +198,10 @@ class Population:
                 if (citizen.age > 30 and citizen.age <= 50 and citizen.state == 0):
                     people_with_vaccine.append(citizen)
                 
-            cacandidates = np.random.choice(people_with_vaccine, size=np.round(int(vaccinated_everyday*len(people_with_vaccine))))
+            if len(people_with_vaccine)<self.N*vaccinated_everyday:
+                candidates = people_with_vaccine
+            else:
+                candidates = np.random.choice(people_with_vaccine, size=np.round(int(vaccinated_everyday*self.N)), replace=False)   
 
             for candidate in candidates:
                 candidate.state = 4
