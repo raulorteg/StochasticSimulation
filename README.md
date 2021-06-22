@@ -17,9 +17,9 @@ A citizen can be in any of the S, I, R, D states, and the transition of this sta
   <img src="sir_model_vanilla.png" alt="cycle_simulation" height="150" />
 </p>
 
-### Variation 1: Including Lockdown
+### Variation 1: Lockdown
 
-### Variation 2: Including Vaccination programme
+### Variation 2: Vaccination programme
 
 ### Variation 3: Simulating infection spread over populations
 
