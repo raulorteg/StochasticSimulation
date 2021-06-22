@@ -14,7 +14,7 @@ We start implementing a variation of the SIR model for simulating a pandemic tha
 A citizen can be in any of the S, I, R, D states, and the transition of this states follow the digram in the figure below. A susceptible Citizen can get infected thus transitioning into I state, an Infect citizen can die while ill or recover once the illness is over, and in order to simulate waves of the disease a recovered citizen after some time looses inmunity and becomes Susceptible again.
 
 <p float="center">
-  <img src="plots/foo" alt="cycle_simulation" height="300" />
+  <img src="sir_model_vanilla.png" alt="cycle_simulation" height="150" />
 </p>
 
 ### Variation 1: Including Lockdown
