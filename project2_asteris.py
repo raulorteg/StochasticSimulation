@@ -31,13 +31,13 @@ class Citizen:
         # citizen gets infected
         ## if np.random.uniform() < (infected_rate/(recovered_rate+infected_rate)):
         self.lockdown = 1
-        if total_infected>0.02*total_population:
-            self.lockdown = 0.2
-        #    self.start_lockdown = time
-        lockdown = self.lockdown
+        # if total_infected>0.02*total_population:
+        #     self.lockdown = 0.2
+        # #    self.start_lockdown = time
+        # lockdown = self.lockdown
         #if time - self.lockdown>=7:
         #    lockdown = 1
-        if np.random.uniform() < lockdown*(total_infected/total_population)*(infected_rate/(recovered_rate+infected_rate)):
+        if np.random.uniform() < 1*(total_infected/total_population)*(infected_rate/(recovered_rate+infected_rate)):
             self.state = 1 # infected
             self.internal_clock = np.random.beta(a=10, b=3)*18 + (0.3*self.age) # 10 days average time being sick
             self.start_time = time # time when got infected
@@ -66,7 +66,7 @@ class Citizen:
 
         else:
             # constant prob p=0.05 of dying
-            if np.random.uniform() < 0.005*(self.age*0.1):
+            if np.random.uniform() < 0.001*(self.age*0.1): #death rate
                 self.state = 3 # citizen dies
 
 
@@ -162,7 +162,7 @@ class Population:
 
     def vacciantion_process(self, vaccinated_everyday=0.01):
         """
-        Vaccinate 10% of group population everyday starting after the 200th day 
+        Vaccinate 1% of group population everyday starting after the 200th day 
         """
         
         #vaccinated_everyday = 0.05
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     df = df.groupby(['ALDER'])['INDHOLD'].agg('sum')
     age_groups = df.to_dict()
 
-    Copenhaguen = Population(S=10000, I=10, R=0, beta=0.5, gamma=0.6, time_final=500, age_groups=age_groups)
+    Copenhaguen = Population(S=10000, I=10, R=0, beta=0.01, gamma=0.1, time_final=500, age_groups=age_groups)
     Copenhaguen.iterate()
 
     # get results
@@ -250,4 +250,7 @@ if __name__ == "__main__":
     ax.set_title('World population')
     ax.set_xlabel('Year')
     ax.set_ylabel('Number of people (millions)')
+    plt.show()
+
+    plt.plot(I_history)
     plt.show()
