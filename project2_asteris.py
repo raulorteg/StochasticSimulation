@@ -252,5 +252,10 @@ if __name__ == "__main__":
     ax.set_ylabel('Number of people (millions)')
     plt.show()
 
-    plt.plot(I_history)
+    plt.plot(I_history, label='Infected')
+    plt.plot(D_history, label='Dead')
+    plt.title('Number of Infections since the start of the pandemic')
+    plt.ylabel('Number of Infected people')
+    plt.xlabel('Days')
+    plt.legend()
     plt.show()
